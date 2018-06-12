@@ -21,25 +21,26 @@ type CFSSL struct {
 	secretsLister            corelisters.SecretLister
 }
 
-// Defines the body of an unauthenticated request to send to a remote cfssl ca server
+// Request defines the body of an unauthenticated request to send to a remote cfssl ca server
 type Request struct {
 	Profile            string `json:"profile,omitempty"`
 	CertificateRequest string `json:"certificate_request"`
 }
 
-// Defines the response body received from a remote cfssl ca server
+// Response defines the response body received from a remote cfssl ca server
 type Response struct {
 	Success bool                     `json:"success"`
 	Result  map[string]interface{}   `json:"result"`
 	Errors  []map[string]interface{} `json:"errors"`
 }
 
-// Defines the body of an authenticated request to send to a remote cfssl ca server
+// AuthenticatedRequest defines the body of an authenticated request to send to a remote cfssl ca server
 type AuthenticatedRequest struct {
 	Token   string `json:"token"`
 	Request string `json:"request"`
 }
 
+// NewCFSSL initializes a new CFSSL struct and returns a pointer to it
 func NewCFSSL(issuer v1alpha1.GenericIssuer,
 	cl kubernetes.Interface,
 	cmclient clientset.Interface,

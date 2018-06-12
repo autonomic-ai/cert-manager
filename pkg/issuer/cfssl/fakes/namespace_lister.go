@@ -7,6 +7,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
+// NamespaceLister is a struct that implements kubernetes api secrets.SecretNamespaceLister interface
+// It is used solely for testing to mock calls to list secrets in a namespace
 type NamespaceLister struct {
 	retVals map[string]*v1.Secret
 }
@@ -17,6 +19,7 @@ func NewNamespaceLister() *NamespaceLister {
 	}
 }
 
+// List is set to return error as this function does not get called by test code.
 func (nl *NamespaceLister) List(selector labels.Selector) ([]*v1.Secret, error) {
 	return []*v1.Secret{}, errors.NewNotFound(schema.GroupResource{}, selector.String())
 }

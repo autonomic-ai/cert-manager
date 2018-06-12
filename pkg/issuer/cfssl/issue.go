@@ -18,7 +18,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang/glog"
 	"github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha1"
 	"github.com/jetstack/cert-manager/pkg/util/errors"
 	"github.com/jetstack/cert-manager/pkg/util/kube"
@@ -32,20 +31,18 @@ const (
 	successCertIssued = "CertIssueSuccess"
 
 	messageCertIssued                     = "Certificate issued successfully"
-	messageErrorGetCertKeyPair            = "Error getting keypair for certificate: "
 	messageErrorIssueCert                 = "Error issuing TLS certificate: "
 	messageAuthKeyFormat                  = "authkey must be in hexadecimal format: "
 	messageRemoteServerResponseNotSuccess = "remote cfssl server failed to sign certificate request"
 	messageRemoteServerResponseNon2xx     = "server returned a non 2xx response"
 )
 
-const defaultRequestTimeout = 5
+const defaultRequestTimeoutSec = 5
 
 func (c *CFSSL) Issue(ctx context.Context, crt *v1alpha1.Certificate) ([]byte, []byte, error) {
 	keyPem, certPem, err := c.obtainCertificate(ctx, crt)
 
 	if err != nil {
-		glog.Info("failed to obtain certificate: %s", err.Error())
 		s := messageErrorIssueCert + err.Error()
 		crt.UpdateStatusCondition(v1alpha1.CertificateConditionReady, v1alpha1.ConditionFalse, errorIssueCert, s, false)
 		return nil, nil, err
@@ -57,16 +54,13 @@ func (c *CFSSL) Issue(ctx context.Context, crt *v1alpha1.Certificate) ([]byte, [
 }
 
 func (c *CFSSL) obtainCertificate(ctx context.Context, crt *v1alpha1.Certificate) ([]byte, []byte, error) {
-	var signeeKey crypto.PrivateKey
-	var err error
-
 	// get existing certificate private key
-	signeeKey, err = kube.SecretPrivateKey(c.secretsLister, crt.Namespace, crt.Spec.SecretName)
+	signeeKey, err := kube.SecretPrivateKey(c.secretsLister, crt.Namespace, crt.Spec.SecretName)
 	if k8sErrors.IsNotFound(err) || errors.IsInvalidData(err) {
 		keySpec := crt.Spec.CFSSL.Key
 		signeeKey, err = pki.GeneratePrivateKey(keySpec.Algo, keySpec.Size)
 		if err != nil {
-			return nil, nil, fmt.Errorf("error generating private key: %s", err.Error())
+			return nil, nil, fmt.Errorf("error generating private key: %s", err)
 		}
 	}
 
@@ -77,7 +71,7 @@ func (c *CFSSL) obtainCertificate(ctx context.Context, crt *v1alpha1.Certificate
 
 	signeeKeyPem, err := pki.EncodePrivateKey(signeeKey)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error encoding private key: %s", err.Error())
+		return nil, nil, fmt.Errorf("error encoding private key: %s", err)
 	}
 
 	return signeeKeyPem, certPem, nil
@@ -101,24 +95,24 @@ func (c *CFSSL) signCertificate(ctx context.Context, crt *v1alpha1.Certificate, 
 
 	requestBody, err := c.buildRequestBody(csrPem)
 	if err != nil {
-		return nil, fmt.Errorf("error building request body: %s", err.Error())
+		return nil, fmt.Errorf("error building request body: %s", err)
 	}
 
 	issuerSpec := c.issuer.GetSpec().CFSSL
 	url := fmt.Sprintf("%s%s", issuerSpec.Server, issuerSpec.Path)
 
-	requestCtx, cancel := context.WithTimeout(ctx, defaultRequestTimeout*time.Second)
+	requestCtx, cancel := context.WithTimeout(ctx, defaultRequestTimeoutSec*time.Second)
 	defer cancel()
 
 	httpRequest, err := http.NewRequest("POST", url, bytes.NewReader(requestBody))
 	if err != nil {
-		return nil, fmt.Errorf("error building http post request: %s", err.Error())
+		return nil, fmt.Errorf("error building http post request: %s", err)
 	}
 
 	httpRequest = httpRequest.WithContext(requestCtx)
 	httpResponse, err := http.DefaultClient.Do(httpRequest)
 	if err != nil {
-		return nil, fmt.Errorf("error making request to remote cfssl server: %s", err.Error())
+		return nil, fmt.Errorf("error making request to remote cfssl server: %s", err)
 	}
 
 	if httpResponse.StatusCode != http.StatusOK {
@@ -128,7 +122,7 @@ func (c *CFSSL) signCertificate(ctx context.Context, crt *v1alpha1.Certificate, 
 	var response Response
 	err = json.NewDecoder(httpResponse.Body).Decode(&response)
 	if err != nil {
-		return nil, fmt.Errorf("error decoding cfssl server response: %s", err.Error())
+		return nil, fmt.Errorf("error decoding cfssl server response: %s", err)
 	}
 
 	if !response.Success {

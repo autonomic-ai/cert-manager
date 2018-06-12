@@ -1,8 +1,6 @@
 package fakes
 
 import (
-	"fmt"
-
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
@@ -10,6 +8,8 @@ import (
 	listersv1 "k8s.io/client-go/listers/core/v1"
 )
 
+// Lister is a struct that implements kubernetes api secrets.SecretLister interface
+// It is used solely for testing to mock calls to list secrets
 type Lister struct {
 	NamespaceLister *NamespaceLister
 }
@@ -20,8 +20,8 @@ func NewLister() *Lister {
 	}
 }
 
-func (l *Lister) List(selector labels.Selector) (ret []*v1.Secret, err error) {
-	fmt.Printf("Lister List: %s\n", selector.String())
+// List is set to return error as this function does not get called by test code.
+func (l *Lister) List(selector labels.Selector) ([]*v1.Secret, error) {
 	return []*v1.Secret{}, errors.NewNotFound(schema.GroupResource{}, selector.String())
 }
 
