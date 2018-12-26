@@ -229,8 +229,9 @@ func ValidateACMEIssuerDNS01Config(iss *v1alpha1.ACMEIssuerDNS01Config, fldPath 
 			if numProviders > 0 {
 				el = append(el, field.Forbidden(fldPath.Child("alidns"), "may not specify more than one provider type"))
 			} else {
-				el = append(el, ValidateSecretKeySelector(&p.Alidns.SecretAccessKey, fldPath.Child("alidns", "secretAccessKeySecretRef"))...)
 				numProviders++
+				el = append(el, ValidateSecretKeySelector(&p.Alidns.AccessKey, fldPath.Child("alidns", "accessKeySecretRef"))...)
+				el = append(el, ValidateSecretKeySelector(&p.Alidns.SecretAccessKey, fldPath.Child("alidns", "secretAccessKeySecretRef"))...)
 			}
 		}
 		if p.AcmeDNS != nil {

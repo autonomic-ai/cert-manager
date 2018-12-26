@@ -176,7 +176,7 @@ type ACMEIssuerDNS01ProviderAkamai struct {
 
 // ACMEIssuerDNS01ProviderAlidns for alicloud
 type ACMEIssuerDNS01ProviderAlidns struct {
-	AccessKeyID     string            `json:"accessKeyID"`
+	AccessKey       SecretKeySelector `json:"accessKeySecretRef"`
 	SecretAccessKey SecretKeySelector `json:"secretAccessKeySecretRef"`
 	Region          string            `json:"region"`
 }
