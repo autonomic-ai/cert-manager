@@ -179,12 +179,16 @@ func (s *Solver) solverForIssuerProvider(issuer v1alpha1.GenericIssuer, provider
 			return nil, errors.Wrap(err, "error instantiating akamai challenge solver")
 		}
 	case providerConfig.Alidns != nil:
+		AccessKey, err := s.loadSecretData(&providerConfig.Alidns.AccessKey, resourceNamespace)
+		if err != nil {
+			return nil, errors.Wrap(err, "error getting alidns secret access key")
+		}
 		SecretAccessKey, err := s.loadSecretData(&providerConfig.Alidns.SecretAccessKey, resourceNamespace)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting alidns secret access key")
 		}
 
-		impl, err = s.dnsProviderConstructors.alidns(providerConfig.Alidns.AccessKeyID, string(SecretAccessKey), providerConfig.Alidns.Region, s.DNS01Nameservers)
+		impl, err = s.dnsProviderConstructors.alidns(string(AccessKey), string(SecretAccessKey), providerConfig.Alidns.Region, s.DNS01Nameservers)
 		if err != nil {
 			return nil, errors.Wrap(err, "error create alidns solver")
 		}
