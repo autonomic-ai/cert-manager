@@ -3,15 +3,34 @@ package alidns
 import (
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 	// "github.com/jetstack/cert-manager/pkg/issuer/acme/dns/util"
+)
+
+var (
+	alidnsLiveTest  bool
+	alidnsAccessKey string
+	alidnsSecretKey string
+	alidnsRegion    string
+	alidnsDomain    string
 )
 
 // var envTest = tester.NewEnvTest(
 // 	"ALICLOUD_ACCESS_KEY",
 // 	"ALICLOUD_SECRET_KEY").
 // 	WithDomain("ALICLOUD_DOMAIN")
+
+func init() {
+	alidnsAccessKey = os.Getenv("ALICLOUD_ACCESS_KEY")
+	alidnsSecretKey = os.Getenv("ALICLOUD_SECRET_KEY")
+	alidnsRegion = os.Getenv("ALICLOUD_REGION")
+	alidnsDomain = os.Getenv("ALICLOUD_DOMAIN")
+	if len(alidnsAccessKey) > 0 && len(alidnsSecretKey) > 0 && len(alidnsRegion) > 0 {
+		alidnsLiveTest = true
+	}
+}
 
 func TestNewDNSProvider(t *testing.T) {
 	testCases := []struct {
@@ -109,30 +128,36 @@ func TestNewDNSProviderConfig(t *testing.T) {
 	}
 }
 
-// func TestLivePresent(t *testing.T) {
-// 	if !envTest.IsLiveTest() {
-// 		t.Skip("skipping live test")
-// 	}
+func TestLivePresent(t *testing.T) {
+	if !alidnsLiveTest {
+		t.Skip("skipping live test")
+	}
 
-// 	envTest.RestoreEnv()
-// 	provider, err := NewDNSProvider()
-// 	require.NoError(t, err)
+	os.Setenv("ALICLOUD_ACCESS_KEY", alidnsAccessKey)
+	os.Setenv("ALICLOUD_SECRET_KEY", alidnsSecretKey)
+	os.Setenv("ALICLOUD_REGION", alidnsRegion)
 
-// 	err = provider.Present(envTest.GetDomain(), "", "123d==")
-// 	require.NoError(t, err)
-// }
+	provider, err := NewDNSProvider()
+	require.NoError(t, err)
 
-// func TestLiveCleanUp(t *testing.T) {
-// 	if !envTest.IsLiveTest() {
-// 		t.Skip("skipping live test")
-// 	}
+	err = provider.Present(alidnsDomain, "", "123d==")
+	require.NoError(t, err)
+}
 
-// 	envTest.RestoreEnv()
-// 	provider, err := NewDNSProvider()
-// 	require.NoError(t, err)
+func TestLiveCleanUp(t *testing.T) {
+	if !alidnsLiveTest {
+		t.Skip("skipping live test")
+	}
 
-// 	time.Sleep(1 * time.Second)
+	os.Setenv("ALICLOUD_ACCESS_KEY", alidnsAccessKey)
+	os.Setenv("ALICLOUD_SECRET_KEY", alidnsSecretKey)
+	os.Setenv("ALICLOUD_REGION", alidnsRegion)
 
-// 	err = provider.CleanUp(envTest.GetDomain(), "", "123d==")
-// 	require.NoError(t, err)
-// }
+	provider, err := NewDNSProvider()
+	require.NoError(t, err)
+
+	time.Sleep(1 * time.Second)
+
+	err = provider.CleanUp(alidnsDomain, "", "123d==")
+	require.NoError(t, err)
+}
