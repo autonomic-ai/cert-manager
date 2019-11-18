@@ -77,6 +77,16 @@ container_pull(
     digest = "sha256:cd0679a54d2abaf3644829f5e290ad8a10688847475f570fddb9963318cf9390",
 )
 
+## Fetch cfssl for use during e2e tests
+## You can change the version of cfssl used for tests by changing the 'tag'
+## field in this rule
+container_pull(
+    name = "com_cloudflare_cfssl",
+    registry = "index.docker.io",
+    repository = "cfssl/cfssl",
+    tag = "1.3.2",
+)
+
 # Load and define targets defined in //hack/bin
 load("//hack/bin:deps.bzl", install_hack_bin = "install")
 

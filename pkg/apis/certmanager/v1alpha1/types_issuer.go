@@ -89,7 +89,28 @@ type IssuerConfig struct {
 	SelfSigned *SelfSignedIssuer `json:"selfSigned,omitempty"`
 
 	// +optional
+	CFSSL *CFSSLIssuer `json:"cfssl,omitempty"`
+
+	// +optional
 	Venafi *VenafiIssuer `json:"venafi,omitempty"`
+}
+
+type CFSSLIssuer struct {
+	// This Secret contains the Authkey used to authenticate requests to
+	// cfssl
+	// +optional
+	AuthKey *SecretKeySelector `json:"authKeySecretRef,omitempty"`
+
+	// Server is the cfssl connection address
+	// This field is required.
+	Server string `json:"server"`
+
+	// Base64 encoded CA bundle to validate cfssl server certificate. Only used
+	// if the Server URL is using HTTPS protocol. This parameter is ignored for
+	// plain HTTP protocol connection. If not set the system root certificates
+	// are used to validate the TLS connection.
+	// +optional
+	CABundle []byte `json:"caBundle,omitempty"`
 }
 
 // VenafiIssuer describes issuer configuration details for Venafi Cloud.

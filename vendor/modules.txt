@@ -59,6 +59,13 @@ github.com/aws/aws-sdk-go/private/protocol/query/queryutil
 github.com/aws/aws-sdk-go/private/protocol
 # github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973
 github.com/beorn7/perks/quantile
+# github.com/cloudflare/cfssl v1.4.1
+github.com/cloudflare/cfssl/api/client
+github.com/cloudflare/cfssl/auth
+github.com/cloudflare/cfssl/info
+github.com/cloudflare/cfssl/api
+github.com/cloudflare/cfssl/errors
+github.com/cloudflare/cfssl/log
 # github.com/cloudflare/cloudflare-go v0.8.5
 github.com/cloudflare/cloudflare-go
 # github.com/coreos/etcd v3.3.13+incompatible
@@ -312,7 +319,7 @@ go.opencensus.io/stats/internal
 go.opencensus.io/internal/tagencoding
 go.opencensus.io/metric/metricproducer
 go.opencensus.io/resource
-# golang.org/x/crypto v0.0.0-20190426145343-a29dc8fdc734
+# golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 golang.org/x/crypto/ssh/terminal
 golang.org/x/crypto/acme
 # golang.org/x/net v0.0.0-20190502183928-7f726cade0ab
