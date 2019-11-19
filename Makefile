@@ -27,6 +27,7 @@ KUBECONFIG ?= $$HOME/.kube/config
 
 # Get a list of all binaries to be built
 CMDS := $(shell find ./cmd/ -maxdepth 1 -type d -exec basename {} \; | grep -v cmd)
+CURR_DIR := $(shell pwd)
 
 .PHONY: help build verify push $(CMDS) e2e_test images images_push \
 	verify_lint verify_unit verify_deps verify_codegen verify_docs verify_chart \
@@ -104,6 +105,7 @@ verify_chart:
 ############
 $(CMDS):
 	bazel build \
+		--stamp --workspace_status_command=$(CURR_DIR)/env.sh \
 		//cmd/$@
 
 e2e_test:
