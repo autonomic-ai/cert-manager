@@ -47,6 +47,8 @@ func ValidateIssuerSpec(iss *v1alpha1.IssuerSpec, fldPath *field.Path) field.Err
 func ValidateIssuerConfig(iss *v1alpha1.IssuerConfig, fldPath *field.Path) field.ErrorList {
 	numConfigs := 0
 	el := field.ErrorList{}
+
+	fmt.Printf("\n\n#########\nissuerConfig: %#v\n\n", iss)
 	if iss.ACME != nil {
 		if numConfigs > 0 {
 			el = append(el, field.Forbidden(fldPath.Child("acme"), "may not specify more than one issuer type"))

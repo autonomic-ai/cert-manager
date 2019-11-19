@@ -18,6 +18,7 @@ package webhooks
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	admissionv1beta1 "k8s.io/api/admission/v1beta1"
@@ -48,6 +49,7 @@ func (c *IssuerAdmissionHook) Validate(admissionSpec *admissionv1beta1.Admission
 	status := &admissionv1beta1.AdmissionResponse{}
 
 	obj := &v1alpha1.Issuer{}
+	fmt.Printf("\n\n###################\nadmissionSpec: %s\n\n", admissionSpec.Object.Raw)
 	err := json.Unmarshal(admissionSpec.Object.Raw, obj)
 	if err != nil {
 		status.Allowed = false
